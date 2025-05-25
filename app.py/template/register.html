@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    /* Custom styles for the registration page */
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+        border-radius: 8px;
+        border: none;
+    }
+
+    .card-header {
+        border-radius: 8px 8px 0 0 !important;
+               background: #6356fa;
+
+        padding: 1rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .card-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #eee;
+        padding: 1rem;
+        border-radius: 0 0 8px 8px;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        padding: 0.6rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .admin-code-section {
+        padding: 0.5rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .form-check-input:checked ~ .form-check-label {
+        font-weight: 600;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header text-white">
+                <h2 class="card-title mb-0">Register</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('register') }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+                        {% if form.username.errors %}
+                            {{ form.username(class="form-control is-invalid", value=form.username.data) }}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.username(class="form-control", value=form.username.data) }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {% if form.email.errors %}
+                            {{ form.email(class="form-control is-invalid", value=form.email.data) }}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.email(class="form-control", value=form.email.data) }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="form-control is-invalid", value=form.name.data) }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="form-control", value=form.name.data) }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {% if form.password.errors %}
+                            {{ form.password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.confirm_password.label(class="form-label") }}
+                        {% if form.confirm_password.errors %}
+                            {{ form.confirm_password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.confirm_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.confirm_password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ form.is_admin(class="form-check-input") }}
+                        {{ form.is_admin.label(class="form-check-label") }}
+                    </div>
+                    <div class="mb-3 admin-code-section" style="display: none;">
+                        {{ form.admin_code.label(class="form-label") }}
+                        {% if form.admin_code.errors %}
+                            {{ form.admin_code(class="form-control is-invalid", value=form.admin_code.data) }}
+                            <div class="invalid-feedback">
+                                {% for error in form.admin_code.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.admin_code(class="form-control", value=form.admin_code.data) }}
+                        {% endif %}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small>Already have an account? <a href="{{ url_for('login') }}">Login here</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide admin code field based on admin checkbox
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminCheckbox = document.querySelector('#is_admin');
+        const adminCodeSection = document.querySelector('.admin-code-section');
+
+        // Initial state
+        if (adminCheckbox) {
+            adminCodeSection.style.display = adminCheckbox.checked ? 'block' : 'none';
+
+            // Toggle on change
+            adminCheckbox.addEventListener('change', function() {
+                adminCodeSection.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        // Preserve form data on submission with validation errors
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            // Store the form data in localStorage before submission
+            const formData = {
+                username: document.querySelector('[name="username"]').value,
+                email: document.querySelector('[name="email"]').value,
+                name: document.querySelector('[name="name"]').value,
+                isAdmin: document.querySelector('#is_admin').checked,
+                adminCode: document.querySelector('[name="admin_code"]')?.value
+            };
+            localStorage.setItem('registrationFormData', JSON.stringify(formData));
+        });
+
+        // Check if there's stored form data and errors are present (indicating a failed submission)
+        if (document.querySelector('.invalid-feedback') && localStorage.getItem('registrationFormData')) {
+            const storedData = JSON.parse(localStorage.getItem('registrationFormData'));
+
+            // For security reasons, we don't restore password fields
+            if (storedData.isAdmin && adminCheckbox) {
+                adminCheckbox.checked = true;
+                adminCodeSection.style.display = 'block';
+            }
+        }
+    });
+</script>
+{% endblock content %}

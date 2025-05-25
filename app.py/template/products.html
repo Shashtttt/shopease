@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}All Products{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: #d7d6ef;
+
+
+    }
+    /* Product Grid Styles */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .product-card {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 60%;
+        object-fit: contain;
+    }
+
+    .product-info {
+        padding: 1.5rem;
+    }
+
+    .product-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-price {
+        color: black;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .product-description {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .product-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* Filter and Sort Section */
+    .filter-sort {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .filter-sort-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .filter-select {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+
+    .pagination-link {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        margin: 0 0.25rem;
+        color: #333;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+
+    .pagination-link:hover,
+    .pagination-link.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+
+    /* Page Title */
+    .page-header {
+        background-color: #f8f9fa;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        text-align: center;
+        border-radius: 8px;
+    }
+
+    .page-header h1 {
+        color: #2c3e50;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+        .filter-sort-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .filter-group {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .filter-select {
+            width: 48%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Title -->
+<div class="page-header">
+    <h1>All Products</h1>
+    <p>Discover our full range of high-quality products</p>
+</div>
+
+<!-- Products Section -->
+<section class="products">
+    <!-- Filter and Sort -->
+    <form id="filter-form" method="GET" action="{{ url_for('products') }}">
+        <div class="filter-sort">
+            <div class="filter-sort-content">
+                <div class="filter-group">
+                    <label for="category">Category:</label>
+                    <select id="category" name="category" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="Electronics" {% if request.args.get('category') == 'Electronics' %}selected{% endif %}>Electronics</option>
+                        <option value="Sports" {% if request.args.get('category') == 'Sports' %}selected{% endif %}>Sports</option>
+                        <option value="Home" {% if request.args.get('category') == 'Home' %}selected{% endif %}>Home</option>
+                        <option value="Fashion" {% if request.args.get('category') == 'Fashion' %}selected{% endif %}>Fashion</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort">Sort by:</label>
+                    <select id="sort" name="sort" class="filter-select">
+                        <option value="default" {% if request.args.get('sort') == 'default' %}selected{% endif %}>Default</option>
+                        <option value="price_asc" {% if request.args.get('sort') == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if request.args.get('sort') == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="name_asc" {% if request.args.get('sort') == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                        <option value="name_desc" {% if request.args.get('sort') == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Product Grid -->
+    <div class="product-grid">
+        {% if products %}
+            {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ url_for('static', filename='uploads/' + product.image_url) }}" alt="{{ product.name }}" class="product-image">
+
+                    <div class="product-info">
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <p class="product-price">₹{{ "%.2f"|format(product.price) }}</p>
+                        <p class="product-description">{{ product.description|truncate(80) }}</p>
+                        <div class="product-actions">
+                            <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST">
+                                <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
+                            </form>
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-primary btn-sm">Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center">
+                <p>No products found matching your criteria.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('products', page=pagination.prev_num, category=request.args.get('category'), sort=request.args.get('sort')) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('products', page=page_num, category=request.args.get('category'), sort=request.args.get('sort')) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">...</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('products', page=pagination.next_num, category=request.args.get('category'), sort=request.args.get('sort')) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle filter changes
+        const categorySelect = document.getElementById('category');
+        const sortSelect = document.getElementById('sort');
+        const filterForm = document.getElementById('filter-form');
+
+        if (categorySelect) {
+            categorySelect.addEventListener('change', function() {
+                filterForm.submit();
+            });
+        }
+
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                filterForm.submit();
+            });
+        }
+    });
+</script>
+{% endblock %}

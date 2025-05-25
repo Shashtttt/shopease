@@ -1,0 +1,533 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: #f8f9fa;
+    }
+
+    .product-container {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        margin: 2rem 0;
+    }
+
+    .product-image-container {
+        height: 400px;
+        overflow: hidden;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.5s;
+    }
+
+    .product-image:hover {
+        transform: scale(1.05);
+    }
+
+    .product-details {
+        padding: 2rem;
+    }
+
+    .product-title {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #1a2739;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        color: black;
+        margin-bottom: 1.5rem;
+    }
+
+    .product-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #1f2d3d;
+        margin-bottom: 1.5rem;
+    }
+
+    .product-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+    }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .meta-label {
+        font-size: 0.9rem;
+        color: #5a6a7f;
+        margin-bottom: 0.25rem;
+    }
+
+    .meta-value {
+        font-weight: bold;
+        color: #1a2739;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        align-items: center;
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        margin-right: 1rem;
+    }
+
+    .quantity-btn {
+        background: #f1f2f6;
+        border: 1px solid #ddd;
+        width: 35px;
+        height: 35px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+        border-radius: 4px;
+    }
+
+    .quantity-btn:hover {
+        background: #e3e4e8;
+    }
+
+    .quantity-input {
+        width: 60px;
+        height: 35px;
+        text-align: center;
+        border: 1px solid #ddd;
+        margin: 0 0.5rem;
+        border-radius: 4px;
+    }
+
+    .stock-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .in-stock {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .low-stock {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .out-of-stock {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-outline-secondary {
+        background-color: transparent;
+        color: #6c757d;
+        border: 1px solid #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-outline-primary {
+        background-color: transparent;
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+    /* Tab styles */
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: #495057;
+        padding: 1rem 1.5rem;
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: transparent;
+        border-bottom: 2px solid #007bff;
+        color: #007bff;
+    }
+
+    .tab-content {
+        border: 1px solid #dee2e6;
+        border-top: none;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .review-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .review-author {
+        font-weight: bold;
+        color: #1a2739;
+    }
+
+    .review-date {
+        color: #5a6a7f;
+        font-size: 0.9rem;
+    }
+
+    .rating {
+        color: #f39c12;
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    p, li, td, th, .nav-link, .breadcrumb-item, label {
+        color: #1a2739;
+    }
+
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: ">";
+        color: #6c757d;
+    }
+
+    .breadcrumb-item a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .product-container {
+            margin: 1rem 0;
+        }
+
+        .product-image-container {
+            height: 300px;
+        }
+
+        .product-meta {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .product-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .quantity-control {
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="mt-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('products') }}">Products</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Product Main Section -->
+    <div class="row product-container">
+        <!-- Product Image -->
+        <div class="col-md-6 product-image-container">
+            <img src="{{ url_for('static', filename='uploads/' + product.image_url) }}"
+                 alt="{{ product.name }}" class="product-image">
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6 product-details">
+            <h1 class="product-title">{{ product.name }}</h1>
+
+            <!-- Stock Status -->
+            {% if product.stock > 10 %}
+                <div class="stock-status in-stock">In Stock ({{ product.stock }} available)</div>
+            {% elif product.stock > 0 %}
+                <div class="stock-status low-stock">Low Stock (Only {{ product.stock }} left)</div>
+            {% else %}
+                <div class="stock-status out-of-stock">Out of Stock</div>
+            {% endif %}
+
+            <div class="product-price">₹{{ "%.2f"|format(product.price) }}</div>
+
+            <div class="product-description">
+                {{ product.description }}
+            </div>
+
+            <!-- Product Metadata -->
+            <div class="product-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Category</span>
+                    <span class="meta-value">{{ product.category }}</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-label">Dimensions</span>
+                    <span class="meta-value">{{ product.dimensions }}</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-label">Product ID</span>
+                    <span class="meta-value">#{{ product.id }}</span>
+                </div>
+            </div>
+
+            <!-- Add to Cart Form -->
+            {% if product.stock > 0 %}
+                <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+                    {{ csrf_token() }}
+
+                    <div class="quantity-control">
+                        <button type="button" class="quantity-btn" id="decrease-quantity">-</button>
+                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="quantity-input" id="quantity-input">
+                        <button type="button" class="quantity-btn" id="increase-quantity">+</button>
+                    </div>
+
+                    <div class="product-actions">
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                        <button type="button" class="btn btn-outline-secondary">Add to Wishlist</button>
+                    </div>
+                </form>
+            {% else %}
+                <button class="btn btn-secondary" disabled>Out of Stock</button>
+                <button type="button" class="btn btn-outline-primary mt-2">Notify Me When Available</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Product Tabs -->
+    <div class="product-tabs mt-5">
+        <ul class="nav nav-tabs" id="productTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="true">Details</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab" aria-controls="shipping" aria-selected="false">Shipping</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Reviews</button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-4 bg-white" id="productTabsContent">
+            <!-- Details Tab -->
+            <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+                <h3>Product Specifications</h3>
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Product Name</th>
+                            <td>{{ product.name }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Category</th>
+                            <td>{{ product.category }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Dimensions</th>
+                            <td>{{ product.dimensions }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">In Stock</th>
+                            <td>{{ product.stock }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="mt-4">Product Description</h3>
+                <p>{{ product.description }}</p>
+            </div>
+
+            <!-- Shipping Tab -->
+            <div class="tab-pane fade" id="shipping" role="tabpanel" aria-labelledby="shipping-tab">
+                <h3>Shipping Information</h3>
+                <p>We offer the following shipping options:</p>
+                <ul>
+                    <li><strong>Standard Shipping:</strong> 3-5 business days (Free for orders over ₹500)</li>
+                    <li><strong>Express Shipping:</strong> 1-2 business days (₹100)</li>
+                    <li><strong>Same Day Delivery:</strong> Available for select locations (₹200)</li>
+                </ul>
+
+                <h4 class="mt-4">Returns Policy</h4>
+                <p>We accept returns within 30 days of purchase. Items must be in original condition with tags attached.</p>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                <h3>Customer Reviews</h3>
+
+                <!-- Sample Reviews -->
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="review-author">John D.</span>
+                        <span class="review-date">April 15, 2025</span>
+                    </div>
+                    <div class="rating">★★★★★</div>
+                    <p>Great product! Exactly as described and arrived quickly. Would definitely buy again.</p>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="review-author">Sarah M.</span>
+                        <span class="review-date">April 2, 2025</span>
+                    </div>
+                    <div class="rating">★★★★☆</div>
+                    <p>Good quality for the price. Shipping was a bit slow but worth the wait.</p>
+                </div>
+
+                <!-- Add a Review Form -->
+                <div class="add-review mt-4">
+                    <h4>Write a Review</h4>
+                    <form>
+                        <div class="mb-3">
+                            <label for="reviewRating" class="form-label">Rating</label>
+                            <select class="form-select" id="reviewRating">
+                                <option value="5">5 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="2">2 Stars</option>
+                                <option value="1">1 Star</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reviewText" class="form-label">Your Review</label>
+                            <textarea class="form-control" id="reviewText" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Quantity control functionality
+        const decreaseBtn = document.getElementById('decrease-quantity');
+        const increaseBtn = document.getElementById('increase-quantity');
+        const quantityInput = document.getElementById('quantity-input');
+
+        if (decreaseBtn && increaseBtn && quantityInput) {
+            decreaseBtn.addEventListener('click', function() {
+                let currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                }
+            });
+
+            increaseBtn.addEventListener('click', function() {
+                let currentValue = parseInt(quantityInput.value);
+                let maxValue = parseInt(quantityInput.getAttribute('max'));
+                if (currentValue < maxValue) {
+                    quantityInput.value = currentValue + 1;
+                }
+            });
+        }
+
+        // Bootstrap tab functionality (if Bootstrap JS is not loaded)
+        if (typeof bootstrap === 'undefined') {
+            const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Remove active class from all tabs and tab content
+                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+
+                    // Show corresponding tab content
+                    const targetId = this.getAttribute('data-bs-target');
+                    const targetPane = document.querySelector(targetId);
+                    if (targetPane) {
+                        targetPane.classList.add('show', 'active');
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEase - {% block title %}{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #4035fa;
+            --secondary: #FF6584;
+            --accent: #20E3B2;
+            --warning: #FFCE00;
+            --danger: #FF5757;
+            --dark: #2D3748;
+            --light: #F7FAFC;
+            --mid: #A0AEC0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: var(--dark);
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(90deg, var(--primary) 0%, #8C52FF 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            position: relative;
+            padding: 8px 15px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-dark .navbar-nav .nav-link:hover,
+        .navbar-dark .navbar-nav .nav-link.active {
+            color: white;
+        }
+
+        .navbar-dark .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15%;
+            width: 70%;
+            height: 3px;
+            background-color: var(--accent);
+            border-radius: 2px;
+        }
+
+        .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(50%, -30%);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #5A52D5;
+            border-color: #5A52D5;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .btn-secondary:hover, .btn-secondary:focus {
+            background-color: #FF4F75;
+            border-color: #FF4F75;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-accent:hover, .btn-accent:focus {
+            background-color: #1ACC9E;
+            border-color: #1ACC9E;
+            color: white;
+        }
+
+        /* Cards */
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Product Cards */
+        .product-card {
+            margin-bottom: 30px;
+        }
+
+        .product-card .card-img-top {
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .product-category {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        /* Alert Styling */
+        .alert {
+            border-radius: 12px;
+            border: none;
+        }
+
+        .alert-success {
+            background-color: rgba(32, 227, 178, 0.2);
+            color: #0D9B7A;
+        }
+
+        .alert-danger {
+            background-color: rgba(255, 87, 87, 0.2);
+            color: #DC3545;
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 206, 0, 0.2);
+            color: #B79000;
+        }
+
+        .alert-info {
+            background-color: rgba(108, 99, 255, 0.2);
+            color: #483FB5;
+        }
+
+        /* Forms */
+        .form-control {
+            border-radius: 10px;
+            padding: 10px 15px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(108, 99, 255, 0.25);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(90deg, var(--dark) 0%, #1A202C 100%);
+            color: white;
+            padding: 50px 0 30px;
+        }
+
+        footer h5 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        footer h5::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--accent);
+        }
+
+        footer a {
+            color: #CBD5E0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent);
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            background-color: var(--accent);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #6C63FF 0%, #8C52FF 100%);
+            color: white;
+            padding: 80px 0;
+            border-radius: 0 0 50px 50px;
+            margin-bottom: 50px;
+        }
+
+        .hero-section h1 {
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Quantity Selector */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .quantity-selector button {
+            background-color: #F7FAFC;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .quantity-selector button:hover {
+            background-color: #E2E8F0;
+        }
+
+        .quantity-selector input {
+            border: none;
+            width: 50px;
+            text-align: center;
+        }
+
+        /* Category Badge */
+        .category-badge {
+            background-color: var(--accent);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* Sale Badge */
+        .sale-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--secondary);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            transform: rotate(5deg);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--mid);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 50px 0;
+                border-radius: 0 0 30px 30px;
+            }
+
+            .card {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fas fa-shopping-bag me-2"></i>ShopEase
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'products' %}active{% endif %}" href="{{ url_for('products') }}">
+                            <i class="fas fa-tags me-1"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle me-1"></i> About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'contact' %}active{% endif %}" href="{{ url_for('contact') }}">
+                            <i class="fas fa-envelope me-1"></i> Contact
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item position-relative">
+                        <a class="nav-link {% if request.endpoint == 'cart' %}active{% endif %}" href="{{ url_for('cart') }}">
+                            <i class="fas fa-shopping-cart me-1"></i> Cart
+                            {% if session.get('cart') %}
+                                <span class="badge rounded-pill bg-danger">{{ session.get('cart')|length }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if 'admin' in request.endpoint %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                                    <i class="fas fa-user-shield me-1"></i> Admin
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i> {{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-list me-2"></i> My Orders</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                           <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">
+                               <i class="fas fa-sign-in-alt me-1"></i> Login
+                           </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'register' %}active{% endif %}" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus me-1"></i> Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="fade-in">
+        {% block content %}
+        <!-- Example Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h1>Welcome to ShopEase</h1>
+                        <p class="lead mb-4">Your one-stop shop for all your needs with the best prices and quality products.</p>
+                        <a href="{{ url_for('products') }}" class="btn btn-light btn-lg">Shop Now <i class="fas fa-arrow-right ms-2"></i></a>
+                    </div>
+                    <div class="col-lg-6 d-none d-lg-block">
+                        <img src="/api/placeholder/600/400" alt="Shopping" class="img-fluid rounded-lg shadow-lg">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Categories -->
+        <section class="container py-5">
+            <h2 class="text-center mb-4">Featured Categories</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-laptop fa-3x mb-3" style="color: var(--primary);"></i>
+                            <h5 class="card-title">Electronics</h5>
+                            <p class="card-text">Discover the latest gadgets and tech accessories</p>
+                            <a href="#" class="btn btn-primary">View Products</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-tshirt fa-3x mb-3" style="color: var(--secondary);"></i>
+                            <h5 class="card-title">Fashion</h5>
+                            <p class="card-text">Stay trendy with our fashion collection</p>
+                            <a href="#" class="btn btn-secondary">View Products</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-home fa-3x mb-3" style="color: var(--accent);"></i>
+                            <h5 class="card-title">Home & Living</h5>
+                            <p class="card-text">Upgrade your living space with our home essentials</p>
+                            <a href="#" class="btn btn-accent">View Products</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section class="container py-5">
+            <h2 class="text-center mb-4">Featured Products</h2>
+            <div class="row">
+                {% for i in range(4) %}
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card">
+                        <div class="position-relative">
+                            <img src="/api/placeholder/300/300" class="card-img-top" alt="Product">
+                            <span class="sale-badge">Sale!</span>
+                        </div>
+                        <div class="card-body">
+                            <span class="product-category">Category</span>
+                            <h5 class="card-title">Product Name</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="product-price">$99.99</span>
+                                <div>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                </div>
+                            </div>
+                            <a href="#" class="btn btn-primary w-100">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>ShopEase</h5>
+                    <p>Your one-stop shop for all your needs with the best prices and quality products.</p>
+                    <div class="mt-3">
+                        <a href="#" class="btn btn-sm btn-outline-light me-2">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Shop</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">New Arrivals</a></li>
+                        <li class="mb-2"><a href="#">Best Sellers</a></li>
+                        <li class="mb-2"><a href="#">Discounts</a></li>
+                        <li class="mb-2"><a href="#">All Products</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Support</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">FAQ</a></li>
+                        <li class="mb-2"><a href="#">Shipping</a></li>
+                        <li class="mb-2"><a href="#">Returns</a></li>
+                        <li class="mb-2"><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Connect With Us</h5>
+                    <div class="social-icons mb-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                    <p>Subscribe to our newsletter:</p>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Your email">
+                        <button class="btn btn-accent" type="button">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            <hr class="mt-4 mb-4" style="border-color: rgba(255,255,255,0.1);">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; {{ now.year }} ShopEase. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-white me-3">Privacy Policy</a>
+                    <a href="#" class="text-white me-3">Terms of Service</a>
+                    <a href="#" class="text-white">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Initialize Bootstrap popovers
+            const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            popoverTriggerList.map(function(popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+
+            // Auto-hide flash messages after 5 seconds
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+
+            // Product quantity selector
+            setupQuantitySelectors();
+
+            // Product filtering
+            setupProductFiltering();
+
+            // Form validation
+            setupFormValidation();
+
+            // Cart functionality
+            setupCartFunctionality();
+
+            // Product image gallery
+            setupProductGallery();
+        });
+
+        function setupQuantitySelectors() {
+            const quantityContainers = document.querySelectorAll('.quantity-selector');
+
+            quantityContainers.forEach(container => {
+                const decreaseBtn = container.querySelector('.decrease');
+                const increaseBtn = container.querySelector('.increase');
+                const input = container.querySelector('input');
+
+                if (decreaseBtn && increaseBtn && input) {
+                    decreaseBtn.addEventListener('click', function() {
+                        let value = parseInt(input.value);
+                        if (value > 1) {
+                            input.value = value - 1;
+                            triggerChangeEvent(input);
+                        }
+                    });
+
+                    increaseBtn.addEventListener('click', function() {
+                        let value = parseInt(input.value);
+                        const max = parseInt(input.getAttribute('max') || 999);
+                        if (value < max) {
+                            input.value = value + 1;
+                            triggerChangeEvent(input);
+                        }
+                    });
+
+                    input.addEventListener('change', function() {
+                        let value = parseInt(input.value);
+                        const min = parseInt(input.getAttribute('min') || 1);
+                        const max = parseInt(input.getAttribute('max') || 999);
+
+                        if (isNaN(value) || value < min) {
+                            input.value = min;
+                        } else if (value > max) {
+                            input.value = max;
+                        }
+                    });
+                }
+            });
+        }
+
+        function setupProductFiltering() {
+            const filterForm = document.getElementById('filter-form');
+            const categoryFilters = document.querySelectorAll('.category-filter');
+            const priceRange = document.getElementById('price-range');
+            const priceOutput = document.getElementById('price-output');
+
+            if (filterForm) {
+                // Handle category filter checkboxes
+                categoryFilters.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        filterForm.submit();
+                    });
+                });
+
+                // Handle price range slider
+                if (priceRange && priceOutput) {
+                    priceRange.addEventListener('input', function() {
+                        priceOutput.textContent = '$' + priceRange.value;
+                    });
+
+                    priceRange.addEventListener('change', function() {
+                        filterForm.submit();
+                    });
+                }
+
+                // Handle sort select
+                const sortSelect = document.getElementById('sort-select');
+                if (sortSelect) {
+                    sortSelect.addEventListener('change', function() {
+                        filterForm.submit();
+                    });
+                }
+            }
+        }
+
+        function setupFormValidation() {
+            const forms = document.querySelectorAll('.needs-validation');
+
+            // Loop over forms and prevent submission if fields are invalid
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    form.classList.add('was-validated');
+                }, false);
+            });
+
+            // Password strength meter
+            const passwordInput = document.getElementById('password');
+            const passwordStrength = document.getElementById('password-strength');
+
+            if (passwordInput && passwordStrength) {
+                passwordInput.addEventListener('input', function() {
+                    const password = passwordInput.value;
+                    let strength = 0;
+
+                    if (password.match(/[a-z]+/)) strength += 1;
+                    if (password.match(/[A-Z]+/)) strength += 1;
+                    if (password.match(/[0-9]+/)) strength += 1;
+                    if (password.match(/[^a-zA-Z0-9]+/)) strength += 1;
+                    if (password.length >= 8) strength += 1;
+
+                    const strengthClass = ['danger', 'warning', 'warning', 'info', 'success'];
+                    const strengthText = ['Very Weak', 'Weak', 'Medium', 'Strong', 'Very Strong'];
+
+                    if (password.length === 0) {
+                        passwordStrength.style.display = 'none';
+                    } else {
+                        passwordStrength.style.display = 'block';
+                        passwordStrength.className = `progress-bar bg-${strengthClass[strength-1]}`;
+                        passwordStrength.style.width = `${strength * 20}%`;
+                        passwordStrength.textContent = strengthText[strength-1];
+                    }
+                });
+            }
+        }
+
+        function setupCartFunctionality() {
+            // Update cart quantity
+            const cartQuantityInputs = document.querySelectorAll('.cart-quantity');
+
+            cartQuantityInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const productId = this.dataset.productId;
+                    const quantity = parseInt(this.value);
+
+                    updateCartItem(productId, quantity);
+                });
+            });
+
+            // Remove item from cart
+            const removeButtons = document.querySelectorAll('.remove-from-cart');
+
+            removeButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const productId = this.dataset.productId;
+
+                    updateCartItem(productId, 0);
+                });
+            });
+        }
+
+        function updateCartItem(productId, quantity) {
+            // You'll need to implement the backend route for this
+            fetch(`/update_cart/${productId}?quantity=${quantity}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart total
+                    document.getElementById('cart-total').textContent = `${data.total.toFixed(2)}`;
+
+                    // Update item subtotal
+                    if (quantity > 0) {
+                        const subtotalElement = document.getElementById(`subtotal-${productId}`);
+                        if (subtotalElement) {
+                            subtotalElement.textContent = `${data.item_subtotal.toFixed(2)}`;
+                        }
+                    } else {
+                        // Remove the row if quantity is 0
+                        const row = document.getElementById(`cart-item-${productId}`);
+                        if (row) {
+                            row.remove();
+                        }
+
+                        // Check if cart is empty
+                        if (data.cart_count === 0) {
+                            document.getElementById('cart-items').innerHTML = '<div class="alert alert-info">Your cart is empty.</div>';
+                            document.getElementById('checkout-btn').style.display = 'none';
+                        }
+                    }
+
+                    // Update cart count in navbar
+                    const cartBadge = document.querySelector('.badge');
+                    if (cartBadge) {
+                        cartBadge.textContent = data.cart_count;
+                        if (data.cart_count === 0) {
+                            cartBadge.style.display = 'none';
+                        } else {
+                            cartBadge.style.display = 'inline-block';
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating cart:', error);
+            });
+});</script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

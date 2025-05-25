@@ -1,0 +1,279 @@
+{% extends "base 1 .html" %}
+
+{% block title %}Order Management - ShopEase Admin{% endblock %}
+
+{% block content %}
+    <style>
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .low-stock {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .stock-warning {
+            background-color: #fff3cd;
+        }
+    </style>
+</head>
+<body>
+<!--    &lt;!&ndash; Navigation &ndash;&gt;-->
+<!--    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
+<!--        <div class="container">-->
+<!--            <a class="navbar-brand" href="{{ url_for('home') }}">ShopEase</a>-->
+<!--            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">-->
+<!--                <span class="navbar-toggler-icon"></span>-->
+<!--            </button>-->
+<!--            <div class="collapse navbar-collapse" id="navbarNav">-->
+<!--                <ul class="navbar-nav me-auto">-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link active" href="{{ url_for('admin_products') }}">Products</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="{{ url_for('admin_orders') }}">Orders</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="{{ url_for('admin_users') }}">Users</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="{{ url_for('admin_inventory') }}">Inventory</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="{{ url_for('admin_reports') }}">Reports</a>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--                <ul class="navbar-nav">-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </nav>-->
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Product Management</h1>
+            <a href="{{ url_for('add_product') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Product
+            </a>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="row search-container">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="productSearch" class="form-control" placeholder="Search products...">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    {% set categories = [] %}
+                    {% for product in products %}
+                        {% if product.category not in categories %}
+                            {% set _ = categories.append(product.category) %}
+                            <option value="{{ product.category }}">{{ product.category }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="stockFilter">
+                    <option value="">All Stock Levels</option>
+                    <option value="low">Low Stock (< 10)</option>
+                    <option value="out">Out of Stock</option>
+                    <option value="available">In Stock</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr class="product-row {% if product.stock < 10 %}stock-warning{% endif %}">
+                        <td>{{ product.id }}</td>
+                        <td>
+                            <img src="{{ url_for('static', filename='uploads/' + product.image_url) }}" alt="{{ product.name }}" class="product-image">
+                        </td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category }}</td>
+                        <td>₹{{ "%.2f"|format(product.price) }}</td>
+                        <td {% if product.stock < 10 %}class="low-stock"{% endif %}>
+                            {{ product.stock }}
+                            {% if product.stock == 0 %}
+                                <span class="badge bg-danger">Out of Stock</span>
+                            {% elif product.stock < 10 %}
+                                <span class="badge bg-warning text-dark">Low Stock</span>
+                            {% endif %}
+                        </td>
+                        <td class="action-buttons">
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+
+                            <!-- Delete Modal for each product -->
+                            <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirm Deletion</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete <strong>{{ product.name }}</strong>?
+                                            This action cannot be undone.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">No products found. <a href="{{ url_for('add_product') }}">Add a product</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Stats at bottom -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Products</h5>
+                        <p class="card-text display-6">{{ products|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Low Stock Items</h5>
+                        <p class="card-text display-6">{{ products|selectattr('stock', 'lt', 10)|list|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Categories</h5>
+                        <p class="card-text display-6">{{ products|map(attribute='category')|unique|list|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white mt-5 py-3">
+        <div class="container text-center">
+            <p>&copy; {{ now.year }} ShopEase. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Search functionality
+        document.getElementById('productSearch').addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.product-row');
+
+            rows.forEach(row => {
+                const name = row.children[2].textContent.toLowerCase();
+                const category = row.children[3].textContent.toLowerCase();
+
+                if (name.includes(searchValue) || category.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Category filter
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            const categoryValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.product-row');
+
+            rows.forEach(row => {
+                const category = row.children[3].textContent.toLowerCase();
+
+                if (categoryValue === '' || category === categoryValue) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Stock filter
+        document.getElementById('stockFilter').addEventListener('change', function() {
+            const stockValue = this.value;
+            const rows = document.querySelectorAll('.product-row');
+
+            rows.forEach(row => {
+                const stock = parseInt(row.children[5].textContent);
+
+                if (stockValue === '') {
+                    row.style.display = '';
+                } else if (stockValue === 'low' && stock < 10 && stock > 0) {
+                    row.style.display = '';
+                } else if (stockValue === 'out' && stock === 0) {
+                    row.style.display = '';
+                } else if (stockValue === 'available' && stock >= 10) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+{% endblock %}

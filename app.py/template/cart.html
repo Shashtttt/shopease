@@ -1,0 +1,771 @@
+{% extends "base.html" %}
+
+{% block title %}Your Shopping Cart{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: #f8f9fa;
+    }
+
+    .cart-container {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        margin: 2rem 0;
+        padding: 2rem;
+    }
+
+    .cart-title {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: #1a2739;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+    }
+
+    .cart-empty {
+        text-align: center;
+        padding: 3rem 0;
+    }
+
+    .cart-empty i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+    }
+
+    .cart-empty p {
+        font-size: 1.2rem;
+        color: #777;
+    }
+
+    .cart-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .cart-item-image {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        margin-right: 1.5rem;
+    }
+
+    .cart-item-details {
+        flex-grow: 1;
+    }
+
+    .cart-item-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+        color: #1a2739;
+    }
+
+    .cart-item-price {
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 0.3rem;
+    }
+
+    .cart-item-category {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .cart-quantity {
+        display: flex;
+        align-items: center;
+        margin-right: 1.5rem;
+    }
+
+    .quantity-btn {
+        background: #f1f2f6;
+        border: none;
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .quantity-btn:hover {
+        background: #e3e4e8;
+    }
+
+    .quantity-input {
+        width: 40px;
+        height: 32px;
+        text-align: center;
+        border: 1px solid #f1f2f6;
+        margin: 0 0.3rem;
+    }
+
+    .cart-item-remove {
+        color: #e74c3c;
+        cursor: pointer;
+        margin-left: 1rem;
+    }
+
+    .cart-summary {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .summary-title {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+        color: #1a2739;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-label {
+        color: #5a6a7f;
+    }
+
+    .summary-value {
+        font-weight: bold;
+        color: #1a2739;
+    }
+
+    .summary-total {
+        font-size: 1.2rem;
+        padding-top: 1rem;
+        margin-top: 1rem;
+        border-top: 1px solid #ddd;
+    }
+
+    .checkout-button {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1.1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .checkout-button:hover {
+        background-color: #27ae60;
+    }
+
+    .payment-methods {
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .payment-icon {
+        margin: 0 0.5rem;
+        opacity: 0.6;
+    }
+
+    .continue-shopping {
+        display: inline-block;
+        margin-top: 1rem;
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    .continue-shopping:hover {
+        text-decoration: underline;
+    }
+
+    /* Payment Section Styles */
+    .payment-section {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        display: none;
+    }
+
+    .payment-heading {
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+        color: #1a2739;
+    }
+
+    .payment-options {
+        display: flex;
+        margin-bottom: 1.5rem;
+    }
+
+    .payment-option {
+        flex: 1;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: center;
+        cursor: pointer;
+        margin: 0 0.5rem;
+    }
+
+    .payment-option.active {
+        border-color: #3498db;
+        background-color: #ebf5fb;
+    }
+
+    .payment-icon-large {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-form {
+        margin-top: 1.5rem;
+    }
+
+    .card-element {
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .processing {
+        display: none;
+        text-align: center;
+        padding: 2rem 0;
+    }
+
+    .processing i {
+        font-size: 2rem;
+        color: #3498db;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .cart-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .cart-item-image {
+            margin-bottom: 1rem;
+        }
+
+        .cart-quantity {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="mt-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+        </ol>
+    </nav>
+
+    <div class="cart-container">
+        <h1 class="cart-title">Your Shopping Cart</h1>
+
+        {% if not products %}
+            <!-- Empty Cart State -->
+            <div class="cart-empty">
+                <i class="fas fa-shopping-cart"></i>
+                <p>Your cart is empty</p>
+                <a href="{{ url_for('products') }}" class="btn btn-primary mt-3">Browse Products</a>
+            </div>
+        {% else %}
+            <!-- Cart Items -->
+            <div class="cart-items">
+                {% for item in products %}
+                <div class="cart-item" data-product-id="{{ item.product.id }}">
+                    <img src="{{ url_for('static', filename='uploads/' + item.product.image_url) }}"
+                         alt="{{ item.product.name }}" class="cart-item-image">
+
+                    <div class="cart-item-details">
+                        <h4 class="cart-item-title">{{ item.product.name }}</h4>
+                        <div class="cart-item-price">₹{{ "%.2f"|format(item.product.price) }}</div>
+                        <div class="cart-item-category">{{ item.product.category }}</div>
+                    </div>
+
+                    <div class="cart-quantity">
+                        <button class="quantity-btn decrease-quantity">-</button>
+                        <input type="number" class="quantity-input"
+                               value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}"
+                               data-price="{{ item.product.price }}">
+                        <button class="quantity-btn increase-quantity">+</button>
+                    </div>
+
+                    <div class="cart-item-subtotal">
+                        ₹{{ "%.2f"|format(item.product.price * item.quantity) }}
+                    </div>
+
+                    <a href="#" class="cart-item-remove" data-product-id="{{ item.product.id }}">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Cart Summary and Checkout -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="promo-code">
+                        <h4>Promo Code</h4>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Enter promo code">
+                            <button class="btn btn-outline-secondary" type="button">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="cart-summary">
+                        <h4 class="summary-title">Order Summary</h4>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal</span>
+                            <span class="summary-value" id="cart-subtotal">₹{{ "%.2f"|format(total) }}</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Shipping</span>
+                            <span class="summary-value" id="shipping-cost">
+                                {% if total > 500 %}Free{% else %}₹50.00{% endif %}
+                            </span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Tax (18%)</span>
+                            <span class="summary-value" id="tax-amount">₹{{ "%.2f"|format(total * 0.18) }}</span>
+                        </div>
+
+                        <div class="summary-row summary-total">
+                            <span class="summary-label">Total</span>
+                            <span class="summary-value" id="cart-total">
+                                {% if total > 500 %}
+                                    ₹{{ "%.2f"|format(total + (total * 0.18)) }}
+                                {% else %}
+                                    ₹{{ "%.2f"|format(total + 50 + (total * 0.18)) }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <button id="checkout-button" class="checkout-button">
+                            Proceed to Checkout
+                        </button>
+
+                        <div class="payment-methods mt-3">
+                            <img src="{{ url_for('static', filename='img/visa.png') }}" alt="Visa" class="payment-icon" width="40">
+                            <img src="{{ url_for('static', filename='img/mastercard.png') }}" alt="Mastercard" class="payment-icon" width="40">
+                            <img src="{{ url_for('static', filename='img/paypal.png') }}" alt="PayPal" class="payment-icon" width="40">
+                            <img src="{{ url_for('static', filename='img/upi.png') }}" alt="UPI" class="payment-icon" width="40">
+                        </div>
+
+                        <a href="{{ url_for('products') }}" class="continue-shopping">
+                            <i class="fas fa-arrow-left"></i> Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Section (Hidden by default) -->
+            <div class="payment-section" id="payment-section">
+                <h4 class="payment-heading">Payment Method</h4>
+
+                <div class="payment-options">
+                    <div class="payment-option active" data-payment="card">
+                        <i class="fas fa-credit-card payment-icon-large"></i>
+                        <div>Credit/Debit Card</div>
+                    </div>
+                    <div class="payment-option" data-payment="paypal">
+                        <i class="fab fa-paypal payment-icon-large"></i>
+                        <div>PayPal</div>
+                    </div>
+                    <div class="payment-option" data-payment="upi">
+                        <i class="fas fa-mobile-alt payment-icon-large"></i>
+                        <div>UPI</div>
+                    </div>
+                </div>
+
+                <!-- Card Payment Form -->
+                <div class="card-form" id="card-payment">
+                    <div class="card-element" id="card-element">
+                        <!-- Stripe Card Element will be inserted here -->
+                        <div class="form-group mb-3">
+                            <label for="card-number">Card Number</label>
+                            <input type="text" id="card-number" class="form-control" placeholder="1234 5678 9012 3456">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="card-expiry">Expiry Date</label>
+                                <input type="text" id="card-expiry" class="form-control" placeholder="MM/YY">
+                            </div>
+                            <div class="form-group">
+                                <label for="card-cvc">CVC</label>
+                                <input type="text" id="card-cvc" class="form-control" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="card-name">Name on Card</label>
+                        <input type="text" id="card-name" class="form-control" placeholder="John Doe">
+                    </div>
+                </div>
+
+                <!-- PayPal Payment Form (Hidden by default) -->
+                <div class="paypal-form" id="paypal-payment" style="display: none;">
+                    <div class="alert alert-info">
+                        You will be redirected to PayPal to complete your payment.
+                    </div>
+                </div>
+
+                <!-- UPI Payment Form (Hidden by default) -->
+                <div class="upi-form" id="upi-payment" style="display: none;">
+                    <div class="form-group mb-3">
+                        <label for="upi-id">UPI ID</label>
+                        <input type="text" id="upi-id" class="form-control" placeholder="yourname@upi">
+                    </div>
+                </div>
+
+                <!-- Billing Address -->
+                <div class="billing-address mt-4">
+                    <h5>Billing Address</h5>
+
+                    <div class="form-group mb-3">
+                        <label for="billing-name">Full Name</label>
+                        <input type="text" id="billing-name" class="form-control" placeholder="Name">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="billing-address">Address</label>
+                        <input type="text" id="billing-address" class="form-control" placeholder="address">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="billing-city">City</label>
+                            <input type="text" id="billing-city" class="form-control" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label for="billing-state">State</label>
+                            <input type="text" id="billing-state" class="form-control" placeholder="State">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="billing-zip">Zip Code</label>
+                            <input type="text" id="billing-zip" class="form-control" placeholder="Zip Code">
+                        </div>
+                        <div class="form-group">
+                            <label for="billing-country">Country</label>
+                            <select id="billing-country" class="form-control">
+                                <option value="India">India</option>
+                                <option value="United States">United States</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Australia">Australia</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Buttons -->
+                <div class="payment-buttons mt-4">
+                    <button id="back-to-cart" class="btn btn-outline-secondary">Back to Cart</button>
+                    <button id="place-order" class="btn btn-primary">Place Order</button>
+                </div>
+
+                <!-- Processing Indicator -->
+                <div class="processing" id="processing">
+                    <i class="fas fa-spinner"></i>
+                    <p>Processing your payment...</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cart functionality
+        initializeCartFunctionality();
+
+        // Checkout process
+        initializeCheckoutProcess();
+
+        // Payment method selection
+        initializePaymentSelection();
+    });
+
+    function initializeCartFunctionality() {
+        // Quantity buttons
+        const decreaseButtons = document.querySelectorAll('.decrease-quantity');
+        const increaseButtons = document.querySelectorAll('.increase-quantity');
+        const quantityInputs = document.querySelectorAll('.quantity-input');
+        const removeButtons = document.querySelectorAll('.cart-item-remove');
+
+        // Decrease quantity
+        decreaseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+                if (value > 1) {
+                    input.value = value - 1;
+                    updateCartItem(input);
+                }
+            });
+        });
+
+        // Increase quantity
+        increaseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+                let max = parseInt(input.getAttribute('max'));
+                if (value < max) {
+                    input.value = value + 1;
+                    updateCartItem(input);
+                }
+            });
+        });
+
+        // Quantity input change
+        quantityInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                updateCartItem(this);
+            });
+        });
+
+        // Remove item
+        removeButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+                removeCartItem(productId);
+            });
+        });
+    }
+
+    function updateCartItem(input) {
+        const quantity = parseInt(input.value);
+        const price = parseFloat(input.getAttribute('data-price'));
+        const cartItem = input.closest('.cart-item');
+        const productId = cartItem.getAttribute('data-product-id');
+        const subtotalElement = cartItem.querySelector('.cart-item-subtotal');
+
+        // Update subtotal for this item
+        const subtotal = quantity * price;
+        subtotalElement.textContent = `₹${subtotal.toFixed(2)}`;
+
+        // Update cart via AJAX
+        fetch(`/update_cart/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrf_token')
+            },
+            body: JSON.stringify({ quantity: quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update cart totals
+            updateCartTotals(data.subtotal, data.shipping, data.tax, data.total);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function removeCartItem(productId) {
+        // Remove via AJAX
+        fetch(`/remove_from_cart/${productId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrf_token')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove the item from DOM
+            const cartItem = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+            cartItem.remove();
+
+            // Update cart totals
+            updateCartTotals(data.subtotal, data.shipping, data.tax, data.total);
+
+            // If cart is empty, refresh the page to show empty state
+            if (data.item_count === 0) {
+                window.location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function updateCartTotals(subtotal, shipping, tax, total) {
+        document.getElementById('cart-subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('shipping-cost').textContent = shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`;
+        document.getElementById('tax-amount').textContent = `₹${tax.toFixed(2)}`;
+        document.getElementById('cart-total').textContent = `₹${total.toFixed(2)}`;
+    }
+
+    function initializeCheckoutProcess() {
+        const checkoutButton = document.getElementById('checkout-button');
+        const backToCartButton = document.getElementById('back-to-cart');
+        const placeOrderButton = document.getElementById('place-order');
+        const paymentSection = document.getElementById('payment-section');
+        const processingIndicator = document.getElementById('processing');
+
+        if (checkoutButton) {
+            checkoutButton.addEventListener('click', function() {
+                // Show payment section
+                paymentSection.style.display = 'block';
+                // Scroll to payment section
+                paymentSection.scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+
+        if (backToCartButton) {
+            backToCartButton.addEventListener('click', function() {
+                // Hide payment section
+                paymentSection.style.display = 'none';
+            });
+        }
+
+        if (placeOrderButton) {
+            placeOrderButton.addEventListener('click', function() {
+                // Validate form inputs
+                if (validatePaymentForm()) {
+                    // Show processing indicator
+                    processingIndicator.style.display = 'block';
+                    placeOrderButton.disabled = true;
+
+                    // Submit payment to server
+                    // In a real implementation, this would be using Stripe's API or similar
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('checkout_success') }}";
+                    }, 2000);
+                }
+            });
+        }
+    }
+
+    function validatePaymentForm() {
+        let isValid = true;
+        const activePayment = document.querySelector('.payment-option.active').getAttribute('data-payment');
+
+        // Different validation based on payment method
+        if (activePayment === 'card') {
+            const cardFields = ['card-number', 'card-expiry', 'card-cvc', 'card-name'];
+            cardFields.forEach(field => {
+                const input = document.getElementById(field);
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+        } else if (activePayment === 'upi') {
+            const upiId = document.getElementById('upi-id');
+            if (!upiId.value.trim() || !upiId.value.includes('@')) {
+                upiId.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                upiId.classList.remove('is-invalid');
+            }
+        }
+
+        // Validate billing address
+        const billingFields = ['billing-name', 'billing-address', 'billing-city', 'billing-state', 'billing-zip'];
+        billingFields.forEach(field => {
+            const input = document.getElementById(field);
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        return isValid;
+    }
+
+    function initializePaymentSelection() {
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        const paymentForms = {
+            'card': document.getElementById('card-payment'),
+            'paypal': document.getElementById('paypal-payment'),
+            'upi': document.getElementById('upi-payment')
+        };
+
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all
+                paymentOptions.forEach(opt => opt.classList.remove('active'));
+                // Add active class to clicked option
+                this.classList.add('active');
+
+                // Show appropriate form
+                const paymentType = this.getAttribute('data-payment');
+                Object.keys(paymentForms).forEach(key => {
+                    paymentForms[key].style.display = key === paymentType ? 'block' : 'none';
+                });
+            });
+        });
+    }
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

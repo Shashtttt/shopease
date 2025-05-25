@@ -1,0 +1,248 @@
+{% extends "base 1 .html" %}
+
+{% block title %}Order Management - ShopEase Admin{% endblock %}
+
+{% block content %}
+    <style>
+        .report-card {
+            transition: transform 0.3s;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .report-card:hover {
+            transform: translateY(-5px);
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .report-icon {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .date-filter {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">Reports & Analytics</h1>
+            <button class="btn btn-primary" onclick="printReport()" aria-label="Print report">
+                <i class="fas fa-print"></i> Print Report
+            </button>
+        </div>
+
+        <div class="date-filter mb-4">
+            <form class="row g-3" id="date-filter-form" method="GET" action="{{ url_for('admin_reports') }}">
+                <div class="col-md-4">
+                    <label for="start-date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start-date" name="start_date" value="{{ request.args.get('start_date', '') }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="end-date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end-date" name="end_date" value="{{ request.args.get('end_date', '') }}">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card report-card bg-primary text-white text-center p-3">
+                    <div class="card-body">
+                        <i class="fas fa-coins report-icon" aria-hidden="true"></i>
+                        <h3 id="total_revenue">₹{{ total_revenue }}</h3>
+                        <p class="mb-0">Total Revenue</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card report-card bg-success text-white text-center p-3">
+                    <div class="card-body">
+                        <i class="fas fa-shopping-cart report-icon" aria-hidden="true"></i>
+                        <h3 id="order-count">{{ total_orders|default('0', true) }}</h3>
+                        <p class="mb-0">Total Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card report-card bg-info text-white text-center p-3">
+                    <div class="card-body">
+                        <i class="fas fa-users report-icon" aria-hidden="true"></i>
+                        <h3 id="customer-count">{{ total_users|default('0', true) }}</h3>
+                        <p class="mb-0">Total Customers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card report-card bg-warning text-white text-center p-3">
+                    <div class="card-body">
+                        <i class="fas fa-exchange-alt report-icon" aria-hidden="true"></i>
+<h3>₹{{ total_revenue }}</h3>
+                        <p class="mb-0">Avg. Order Value</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Selling Products Table -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card report-card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Top Selling Products</h5>
+                        <select class="form-select" style="width: auto;" id="product-sort" aria-label="Sort by">
+                            <option value="quantity">By Quantity</option>
+                            <option value="revenue">By Revenue</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Product Name</th>
+                                        <th scope="col">Category</th>
+                                        <th scope="col">Units Sold</th>
+                                        <th scope="col">Total Revenue</th>
+                                        <th scope="col">In Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in top_selling_products|default([], true) %}
+                                    <tr>
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.category }}</td>
+                                        <td>{{ item.total_quantity }}</td>
+
+<td>₹{{ item.total_revenue|round(2) }}</td>
+                                        <td>{{ item.stock }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No data available</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Status -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card report-card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Inventory Status</h5>
+                        <a href="{{ url_for('admin_inventory') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Product</th>
+                                        <th scope="col">Current Stock</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in low_stock_products|default([], true) %}
+                                    <tr>
+                                        <td>{{ product.name }}</td>
+                                        <td>{{ product.stock }}</td>
+                                        <td>
+                                            {% if product.stock == 0 %}
+                                            <span class="badge bg-danger">Out of Stock</span>
+                                            {% elif product.stock < 5 %}
+                                            <span class="badge bg-warning text-dark">Critical</span>
+                                            {% else %}
+                                            <span class="badge bg-warning text-dark">Low</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">No low stock products</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="mt-4">
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-success" id="export-excel">
+                    <i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel
+                </button>
+                <button class="btn btn-outline-danger" id="export-pdf">
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i> Export to PDF
+                </button>
+                <button class="btn btn-outline-primary" id="export-csv">
+                    <i class="fas fa-file-csv" aria-hidden="true"></i> Export to CSV
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p class="mb-0">ShopEase Admin Panel &copy; {{ now.year }}</p>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JS Functions -->
+    <script>
+        function printReport() {
+            window.print();
+        }
+
+        if (!document.getElementById('end-date').value) {
+            document.getElementById('end-date').valueAsDate = new Date();
+        }
+
+        if (!document.getElementById('start-date').value) {
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 7);
+            document.getElementById('start-date').valueAsDate = startDate;
+        }
+
+        document.getElementById('export-excel').addEventListener('click', function () {
+            alert('Exporting to Excel... This feature would be implemented in production.');
+        });
+
+        document.getElementById('export-pdf').addEventListener('click', function () {
+            alert('Exporting to PDF... This feature would be implemented in production.');
+        });
+
+        document.getElementById('export-csv').addEventListener('click', function () {
+            alert('Exporting to CSV... This feature would be implemented in production.');
+        });
+
+        document.getElementById('product-sort').addEventListener('change', function () {
+            document.getElementById('date-filter-form').submit();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - ShopEase</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        /* Custom Purple Theme */
+        :root {
+            --primary-purple: #8A2BE2;
+            --dark-purple: #5D1A9C;
+            --light-purple: #A76AE2;
+            --light-bg: #F8F9FE;
+        }
+
+        /* Header Styles */
+        .navbar {
+            background: linear-gradient(90deg, var(--primary) 0%, #8C52FF 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        .active > .nav-link {
+            color: white !important;
+            border-bottom: 2px solid white;
+        }
+
+        /* Page Header */
+        .page-header {
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/static/img_13.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            margin-right: 1rem;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        /* About Page Specific */
+        .about-section {
+            padding: 3rem 0;
+        }
+
+        .value-card {
+            background-color: var(--light-bg);
+            border-left: 4px solid var(--primary-purple);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .value-card i {
+            color: var(--primary-purple);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Indian startup highlight section */
+        .india-startup-section {
+            background-color: #f8f9fa;
+            padding: 3rem 0;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .india-map-icon {
+            color: #FF9933; /* Indian flag saffron color */
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Product showcase from home page */
+        .product-showcase {
+            background-color: #d7d6ef;
+            padding: 3rem 0;
+            border-radius: 8px;
+        }
+
+        .showcase-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .showcase-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">ShopEase</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart">
+                            <i class="fas fa-shopping-cart"></i> Cart
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">
+                            <i class="fas fa-user"></i> Account
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>About ShopEase</h1>
+            <p class="lead">Learn more about our mission, vision, and the story behind India's most user-friendly e-commerce platform.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Our Story -->
+        <section class="container about-section">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h2>Our Story</h2>
+                    <p>Founded in 2020 in the heart of India, ShopEase emerged from a simple vision: to create an online shopping experience that truly puts customers first. What began as a small operation in Bangalore has grown into a trusted e-commerce platform serving thousands of satisfied customers across India and beyond.</p>
+                    <p>Our founders recognized the frustrations that many online shoppers faced - complicated interfaces, hidden fees, and impersonal service. They set out to build something different - an intuitive, transparent platform where finding and purchasing quality products would be genuinely easy and enjoyable.</p>
+                    <p>Today, ShopEase continues to grow while staying true to our original mission. We're constantly improving our platform and expanding our product selection to better serve our community of shoppers.</p>
+                </div>
+                <div class="col-lg-6">
+                    <img src="/api/placeholder/600/400" alt="ShopEase store" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </section>
+
+        <!-- Indian Startup Section -->
+        <section class="container india-startup-section">
+            <div class="row align-items-center">
+                <div class="col-lg-6 order-lg-2">
+                    <h2>Proudly Made in India</h2>
+                    <p>ShopEase is a homegrown Indian startup committed to revolutionizing e-commerce in India. Born from the vision of young Indian entrepreneurs, we've combined global best practices with deep understanding of local market needs.</p>
+                    <p>As an Indian startup, we're passionate about contributing to the digital transformation of our nation. We're proud to be part of India's thriving tech ecosystem and are committed to creating a world-class shopping experience designed specifically for Indian consumers.</p>
+                    <p>Our development team in India has crafted one of the most intuitive and visually appealing user interfaces in e-commerce today, with a focus on simplicity, performance, and delight.</p>
+                </div>
+                <div class="col-lg-6 order-lg-1 text-center">
+                    <i class="fas fa-map-marker-alt india-map-icon"></i>
+                    <img src="/api/placeholder/500/300" alt="Indian tech innovation" class="img-fluid rounded shadow mt-3">
+                </div>
+            </div>
+        </section>
+
+        <!-- Our UI Excellence -->
+        <section class="container about-section">
+            <h2 class="text-center mb-4">Award-Winning User Interface</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>At ShopEase, we believe that great e-commerce begins with exceptional user experience. Our platform features:</p>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item"><i class="fas fa-check text-success me-2"></i> Clean, intuitive navigation that makes finding products effortless</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success me-2"></i> Responsive design that works flawlessly on any device</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success me-2"></i> Fast loading times that respect your time</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success me-2"></i> Beautiful product galleries that showcase items in their best light</li>
+                        <li class="list-group-item"><i class="fas fa-check text-success me-2"></i> Simplified checkout process that reduces friction</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <div class="product-showcase p-4 rounded">
+                        <h4 class="text-center mb-3">Experience Our Interface</h4>
+                        <div class="showcase-card">
+                            <img src="/api/placeholder/500/300" alt="ShopEase Interface" class="img-fluid">
+                            <div class="p-3">
+                                <h5>User-Centric Design</h5>
+                                <p>Our home page features a beautiful hero section with rotating banners, intuitive category navigation, and prominently featured products.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Values -->
+        <section class="container about-section">
+            <h2 class="text-center mb-5">Our Core Values</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="value-card">
+                        <i class="fas fa-heart"></i>
+                        <h3>Customer First</h3>
+                        <p>We believe in putting our customers at the center of everything we do. Your satisfaction is our top priority, and we're committed to exceeding your expectations at every step.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="value-card">
+                        <i class="fas fa-gem"></i>
+                        <h3>Quality Products</h3>
+                        <p>We carefully curate our product selection, partnering with trusted suppliers who share our commitment to quality. We stand behind every item we sell.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="value-card">
+                        <i class="fas fa-leaf"></i>
+                        <h3>Sustainability</h3>
+                        <p>We're committed to reducing our environmental impact through eco-friendly packaging, responsible sourcing, and sustainable business practices.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="value-card">
+                        <i class="fas fa-handshake"></i>
+                        <h3>Transparency</h3>
+                        <p>We believe in honest, clear communication with our customers. No hidden fees, no surprise charges - just straightforward information you can trust.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="value-card">
+                        <i class="fas fa-rocket"></i>
+                        <h3>Innovation</h3>
+                        <p>We're constantly exploring new technologies and approaches to improve your shopping experience and bring you the latest products.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="value-card">
+                        <i class="fas fa-globe"></i>
+                        <h3>Community</h3>
+                        <p>We believe in giving back to the communities we serve through charitable initiatives, local partnerships, and responsible business practices.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <h5>ShopEase</h5>
+                    <p>Making online shopping truly easy.</p>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Quick Links</h5>
+                    <div class="footer-links">
+                        <a href="/">Home</a>
+                        <a href="/products">Products</a>
+                        <a href="/about">About</a>
+                        <a href="/contact">Contact</a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Connect With Us</h5>
+                    <div class="social-links">
+                        <a href="#" class="me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="me-2"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p>&copy; 2025 ShopEase. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

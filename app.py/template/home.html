@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: #d7d6ef;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+    }
+    /* Hero Section */
+    .hero-wrapper {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .hero {
+        width: 100vw;
+        height: 450px;
+        background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('/static/img_13.png');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: white;
+        margin: 0;
+        padding: 0;
+        transition: background-image 1s ease-in-out;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-content {
+        width: 100%;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Product Card Styles */
+    .product-card {
+        transition: transform 0.3s;
+        height: 100%;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .product-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-price {
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .product-description {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Categories Section */
+    .category-card {
+        text-align: center;
+        padding: 1.5rem;
+        transition: transform 0.3s;
+        height: 100%;
+        background-color: #787676;
+        color: white;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .category-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--bs-primary);
+    }
+    .img-cover {
+        width: 100%;
+        height: 100%; /* or use 100% if the container has fixed height */
+        object-fit: cover;
+        border-top-left-radius: 0.5rem; /* matches Bootstrap's .rounded-top */
+        border-top-right-radius: 0.5rem;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section with no margins or padding -->
+    <div class="hero-wrapper">
+        <section class="hero">
+            <div class="container hero-content">
+                <h1>Welcome to ShopEase</h1>
+                <p>Your one-stop shop for all your needs</p>
+                <a href="{{ url_for('products') }}" class="btn btn-primary btn-lg">Shop Now</a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Featured Products Section -->
+    <section class="py-5" style="margin-top: 1rem;">
+        <div class="container">
+<h2 class="text-center mb-4 text-black">Featured Products</h2>
+            <div class="row g-4">
+                {% for product in featured_products %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="card product-card h-100 shadow-sm">
+                        <img src="{{ url_for('static', filename='img/' + product.image) }}"
+                             alt="{{ product.name }}"
+                             class="card-img-top product-image"
+                             loading="lazy">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title product-title">{{ product.name }}</h5>
+                            <p class="product-price">₹{{ "%.2f"|format(product.price) }}</p>
+                            <p class="card-text product-description flex-grow-1">{{ product.description|truncate(100) }}</p>
+                            <div class="d-flex justify-content-between mt-auto">
+                                <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-info-circle"></i> Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('products') }}" class="btn btn-outline-primary">View All Products</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-4 text-black">Shop by Category</h2>
+            <div class="row g-4">
+                <div class="col-6 col-md-3">
+                    <a href="{{ url_for('products', category='Electronics') }}" class="text-decoration-none">
+                        <div class="card category-card shadow-sm">
+                             <img src="{{ url_for('static', filename='img_16.png') }}" alt="Electronics Collage" class="img-cover rounded-top" loading="lazy">
+                            <div class="category-icon">
+                            </div>
+                            <h5>Electronics</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="{{ url_for('products', category='Fashion') }}" class="text-decoration-none">
+                        <div class="card category-card shadow-sm">
+                            <div class="category-icon">
+                                <img src="{{ url_for('static', filename='img_7.png') }}" alt="Fashion Collage" class="img-cover rounded-top" loading="lazy">
+                            </div>
+                            <h5>Fashion</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="{{ url_for('products', category='Home') }}" class="text-decoration-none">
+                        <div class="card category-card shadow-sm">
+                            <img src="{{ url_for('static', filename='img_9.png') }}" alt="Home Collage" class="img-cover rounded-top" loading="lazy">
+
+                            <div class="category-icon">
+                            </div>
+                            <h5>Home</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="{{ url_for('products', category='Sports') }}" class="text-decoration-none">
+                        <div class="card category-card shadow-sm">
+                            <img src="{{ url_for('static', filename='img_10.png') }}" alt="Sports Collage" class="img-cover rounded-top" loading="lazy">
+
+                            <div class="category-icon">
+
+                            </div>
+                            <h5>Sports</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Offers Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4 text-black">Special Offers</h2>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="row g-0">
+                            <div class="col-4">
+                                <img src="{{ url_for('static', filename='img_12.png') }}"
+                                     class="img-fluid rounded-start h-100 object-fit-cover"
+                                     alt="Special Offer"
+                                     loading="lazy">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Free Shipping</h5>
+                                    <p class="card-text">Get free shipping on all orders above ₹1000.</p>
+                                    <a href="{{ url_for('products') }}" class="btn btn-sm btn-primary">Shop Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="row g-0">
+                            <div class="col-4">
+                                <img src="{{ url_for('static', filename='img_16.png') }}"
+                                     class="img-fluid rounded-start h-100 object-fit-cover"
+                                     alt="Special Offer"
+                                     loading="lazy">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">20% Off Electronics</h5>
+                                    <p class="card-text">Limited time offer on all electronics.</p>
+                                    <a href="{{ url_for('products', category='Electronics') }}" class="btn btn-sm btn-primary">View Deals</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!--    -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Preload all hero background images
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = [
+            "/static/img_13.png",
+            "/static/img_12.png",
+            "/static/img_8.png",
+            "/static/img_14.png"
+        ];
+
+        // Preload images
+        images.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+
+        const hero = document.querySelector('.hero');
+        let index = 0;
+
+        // Start the slideshow after initial image is already loaded
+        setInterval(() => {
+            index = (index + 1) % images.length;
+            hero.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('${images[index]}')`;
+        }, 5000); // Change every 5 seconds
+    });
+</script>
+{% endblock %}

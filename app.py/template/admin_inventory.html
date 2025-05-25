@@ -1,0 +1,444 @@
+{% extends "base 1 .html" %}
+
+{% block title %}Inventory Management - ShopEase Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stock-critical {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .stock-warning {
+        color: #fd7e14;
+        font-weight: bold;
+    }
+    .stock-good {
+        color: #198754;
+    }
+    .stock-indicator {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+    .table-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+    }
+    .quick-edit {
+        width: 70px;
+    }
+    .filter-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="fas fa-warehouse"></i> Inventory Management</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('add_product') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Product
+            </a>
+        </div>
+    </div>
+
+    <!-- Inventory Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Products</h5>
+                    <h2 class="card-text">{{ products|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Low Stock</h5>
+                    <h2 class="card-text">{{ products|selectattr('stock', 'lt', 10)|list|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Out of Stock</h5>
+                    <h2 class="card-text">{{ products|selectattr('stock', 'eq', 0)|list|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Stock Value</h5>
+                    <h2 class="card-text">₹
+                        {% set total_value = namespace(value=0) %}
+                        {% for product in products %}
+                            {% set total_value.value = total_value.value + (product.price * product.stock) %}
+                        {% endfor %}
+                        {{ "%.2f"|format(total_value.value) }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Section -->
+    <div class="card filter-card mb-4">
+        <div class="card-body">
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label for="filterCategory" class="form-label">Category</label>
+                    <select class="form-select" id="filterCategory">
+                        <option value="">All Categories</option>
+                        {% set categories = [] %}
+                        {% for product in products %}
+                            {% if product.category not in categories %}
+                                {% set categories = categories + [product.category] %}
+                                <option value="{{ product.category }}">{{ product.category }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filterStock" class="form-label">Stock Status</label>
+                    <select class="form-select" id="filterStock">
+                        <option value="">All</option>
+                        <option value="out">Out of Stock</option>
+                        <option value="low">Low Stock (&lt;10)</option>
+                        <option value="good">Good Stock (≥10)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="searchProduct" class="form-label">Search Products</label>
+                    <input type="text" class="form-control" id="searchProduct" placeholder="Search by name...">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-primary w-100" id="applyFilters">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="card">
+        <div class="card-header bg-white">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-0"><i class="fas fa-boxes"></i> Product Inventory</h5>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="printInventory">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="exportCSV">
+                            <i class="fas fa-file-csv"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="inventoryTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="sortable" data-sort="id">ID <i class="fas fa-sort"></i></th>
+                            <th scope="col">Image</th>
+                            <th scope="col" class="sortable" data-sort="name">Product Name <i class="fas fa-sort"></i></th>
+                            <th scope="col" class="sortable" data-sort="category">Category <i class="fas fa-sort"></i></th>
+                            <th scope="col" class="sortable" data-sort="price">Price <i class="fas fa-sort"></i></th>
+                            <th scope="col" class="sortable" data-sort="stock">Stock <i class="fas fa-sort"></i></th>
+                            <th scope="col">Stock Value</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Quick Update</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-category="{{ product.category }}">
+                            <td>{{ product.id }}</td>
+                            <td>
+                                <img src="{{ url_for('static', filename='uploads/' + product.image_url) }}" class="table-img" alt="{{ product.name }}">
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.category }}</td>
+                            <td>₹{{ "%.2f"|format(product.price) }}</td>
+                            <td class="stock-value {% if product.stock == 0 %}stock-critical{% elif product.stock < 10 %}stock-warning{% else %}stock-good{% endif %}">
+                                {{ product.stock }}
+                            </td>
+                            <td>₹{{ "%.2f"|format(product.price * product.stock) }}</td>
+                            <td>
+                                {% if product.stock == 0 %}
+                                    <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Out of Stock</span>
+                                {% elif product.stock < 10 %}
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle"></i> Low Stock</span>
+                                {% else %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> In Stock</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" class="form-control quick-edit quick-stock-input" min="0" value="{{ product.stock }}">
+                                    <button class="btn btn-outline-primary quick-stock-save" type="button" data-product-id="{{ product.id }}">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger delete-product" data-bs-toggle="modal" data-bs-target="#deleteProductModal" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Level Legend -->
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5>Stock Level Legend</h5>
+            <div class="d-flex flex-wrap">
+                <div class="me-4">
+                    <span class="stock-indicator bg-success"></span> Good Stock (≥10)
+                </div>
+                <div class="me-4">
+                    <span class="stock-indicator bg-warning"></span> Low Stock (&lt;10)
+                </div>
+                <div>
+                    <span class="stock-indicator bg-danger"></span> Out of Stock (0)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Product Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProductModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <span id="deleteProductName" class="fw-bold"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteProductForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stock Update Success Modal -->
+<div class="modal fade" id="stockUpdateModal" tabindex="-1" aria-labelledby="stockUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="stockUpdateModalLabel">Stock Updated</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-check-circle text-success display-1 mb-3"></i>
+                <p>Stock level has been successfully updated.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Delete product modal setup
+        $('.delete-product').click(function() {
+            var productId = $(this).data('product-id');
+            var productName = $(this).data('product-name');
+            $('#deleteProductName').text(productName);
+            $('#deleteProductForm').attr('action', '/admin/product/delete/' + productId);
+        });
+
+        // Quick stock update
+        $('.quick-stock-save').click(function() {
+            var productId = $(this).data('product-id');
+            var stockInput = $(this).closest('tr').find('.quick-stock-input');
+            var newStock = stockInput.val();
+
+            // Here you would typically do an AJAX call to update the stock
+            // For demonstration, we'll just show the success modal
+            // In a real application, you would implement the server-side endpoint
+
+            $('#stockUpdateModal').modal('show');
+
+            // Update the UI to reflect the change
+            var row = $(this).closest('tr');
+            var stockCell = row.find('.stock-value');
+
+            // Update the stock value
+            stockCell.text(newStock);
+
+            // Update the status badge
+            var statusCell = row.find('td:nth-child(8)');
+            if (newStock == 0) {
+                stockCell.removeClass('stock-warning stock-good').addClass('stock-critical');
+                statusCell.html('<span class="badge bg-danger"><i class="fas fa-times-circle"></i> Out of Stock</span>');
+            } else if (newStock < 10) {
+                stockCell.removeClass('stock-critical stock-good').addClass('stock-warning');
+                statusCell.html('<span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle"></i> Low Stock</span>');
+            } else {
+                stockCell.removeClass('stock-critical stock-warning').addClass('stock-good');
+                statusCell.html('<span class="badge bg-success"><i class="fas fa-check-circle"></i> In Stock</span>');
+            }
+
+            // Update the stock value cell
+            var priceText = row.find('td:nth-child(5)').text();
+            var price = parseFloat(priceText.replace('₹', ''));
+            var stockValue = price * parseInt(newStock);
+            row.find('td:nth-child(7)').text('₹' + stockValue.toFixed(2));
+        });
+
+        // Sorting functionality
+        $('.sortable').click(function() {
+            var table = $('#inventoryTable');
+            var rows = table.find('tbody tr').get();
+            var sortKey = $(this).data('sort');
+            var sortDir = $(this).hasClass('sort-asc') ? -1 : 1;
+
+            // Update sort indicators
+            $('.sortable').find('i').attr('class', 'fas fa-sort');
+            if (sortDir === 1) {
+                $(this).addClass('sort-asc').removeClass('sort-desc');
+                $(this).find('i').attr('class', 'fas fa-sort-up');
+            } else {
+                $(this).addClass('sort-desc').removeClass('sort-asc');
+                $(this).find('i').attr('class', 'fas fa-sort-down');
+            }
+
+            // Sort the rows
+            rows.sort(function(a, b) {
+                var A, B;
+
+                if (sortKey === 'id' || sortKey === 'stock') {
+                    A = parseInt($(a).find('td:nth-child(' + (sortKey === 'id' ? 1 : 6) + ')').text());
+                    B = parseInt($(b).find('td:nth-child(' + (sortKey === 'id' ? 1 : 6) + ')').text());
+                } else if (sortKey === 'price') {
+                    A = parseFloat($(a).find('td:nth-child(5)').text().replace('₹', ''));
+                    B = parseFloat($(b).find('td:nth-child(5)').text().replace('₹', ''));
+                } else if (sortKey === 'name') {
+                    A = $(a).find('td:nth-child(3)').text().toLowerCase();
+                    B = $(b).find('td:nth-child(3)').text().toLowerCase();
+                } else if (sortKey === 'category') {
+                    A = $(a).find('td:nth-child(4)').text().toLowerCase();
+                    B = $(b).find('td:nth-child(4)').text().toLowerCase();
+                }
+
+                if (A < B) return -1 * sortDir;
+                if (A > B) return 1 * sortDir;
+                return 0;
+            });
+
+            // Re-add the sorted rows to the table
+            $.each(rows, function(index, row) {
+                table.children('tbody').append(row);
+            });
+        });
+
+        // Filter functionality
+        $('#applyFilters').click(function() {
+            var categoryFilter = $('#filterCategory').val().toLowerCase();
+            var stockFilter = $('#filterStock').val();
+            var searchTerm = $('#searchProduct').val().toLowerCase();
+
+            $('#inventoryTable tbody tr').each(function() {
+                var row = $(this);
+                var category = row.data('product-category').toLowerCase();
+                var name = row.data('product-name').toLowerCase();
+                var stock = parseInt(row.find('td:nth-child(6)').text());
+
+                var categoryMatch = !categoryFilter || category === categoryFilter;
+                var nameMatch = !searchTerm || name.includes(searchTerm);
+                var stockMatch = true;
+
+                if (stockFilter === 'out') {
+                    stockMatch = stock === 0;
+                } else if (stockFilter === 'low') {
+                    stockMatch = stock > 0 && stock < 10;
+                } else if (stockFilter === 'good') {
+                    stockMatch = stock >= 10;
+                }
+
+                if (categoryMatch && nameMatch && stockMatch) {
+                    row.show();
+                } else {
+                    row.hide();
+                }
+            });
+        });
+
+        // Print inventory
+        $('#printInventory').click(function() {
+            window.print();
+        });
+
+        // Export CSV
+        $('#exportCSV').click(function() {
+            var csv = [];
+            var rows = document.querySelectorAll('#inventoryTable tr:not(.d-none)');
+
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+
+                for (var j = 0; j < cols.length; j++) {
+                    // Skip the image column and actions column
+                    if (j !== 1 && j !== 8 && j !== 9) {
+                        row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
+                    }
+                }
+
+                csv.push(row.join(','));
+            }
+
+            // Download CSV file
+            var csvFile = new Blob([csv.join('\n')], {type: 'text/csv'});
+            var downloadLink = document.createElement('a');
+            downloadLink.download = 'inventory_' + new Date().toISOString().slice(0,10) + '.csv';
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+        });
+    });
+</script>
+{% endblock %}
